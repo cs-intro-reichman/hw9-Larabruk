@@ -59,8 +59,30 @@ public class MemorySpace {
 	 */
 	public int malloc(int length) {		
 		//// Replace the following statement with your code
-		return -1;
+		Node current = freeList.getFirst();
+		if (current == null){
+			return -1;
+		}
+
+		while (current != null && current.block.length < length){
+			current = current.next;
+		}
+
+		if (current == null){
+			return -1;
+		}
+
+		MemoryBlock newBlock = new MemoryBlock(current.block.baseAddress, length);
+		if (current.block.length == length){
+			this.freeList.remove(current);
+		} else {
+			current.block.baseAddress += length;
+			current.block.length -= length;
+		}
+		this.allocatedList.addLast(newBlock);	
+		return newBlock.baseAddress;
 	}
+		
 
 	/**
 	 * Frees the memory block whose base address equals the given address.
@@ -72,7 +94,22 @@ public class MemorySpace {
 	 */
 	public void free(int address) {
 		//// Write your code here
+		Node current = allocatedList.getFirst();
+		if (allocatedList.getSize() == 0){
+			throw new IllegalArgumentException("index must be between 0 and size");
+		} else {
+			while (current.block.baseAddress != address && current != allocatedList.getLast()){
+				current = current.next;
+			}
+			if (current.block.baseAddress == address){
+				allocatedList.remove(current.block);	
+				freeList.addLast(current.block);
+			}
+					
+		}
 	}
+	
+
 	
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
@@ -89,5 +126,20 @@ public class MemorySpace {
 	 */
 	public void defrag() {
 		//// Write your code here
+		for (int i = 0; i < freeList.getSize(); i++){
+			MemoryBlock block = freeList.getBlock(i);
+			int result = block.baseAddress + block.length;
+			Node current = freeList.getFirst();
+			while (current != null){
+				MemoryBlock nextBlock = current.block;
+				if (nextBlock.baseAddress == result){
+					block.length += nextBlock.length;
+					freeList.remove(current);
+					defrag();
+					break;
+				}
+				current = current.next;
+			}
+		}
 	}
 }

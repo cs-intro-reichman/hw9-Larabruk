@@ -55,7 +55,11 @@ public class LinkedList {
 					"index must be between 0 and size");
 		}
 		//// Replace the following statement with your code
-		return null;
+		Node current = first;
+		for (int i = 0; i < index; i++){
+			current = current.next;
+		}
+		return current;
 	}
 	
 	/**
@@ -79,7 +83,39 @@ public class LinkedList {
 	 */
 	public void add(int index, MemoryBlock block) {
 		//// Write your code here
-	}
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		Node newNode = new Node(block);
+		if(index == 0){
+			newNode.next = first;
+			first = newNode;
+
+			if (size == 0){
+				last = newNode;
+			}
+		}
+		else if(index == size){
+			if (size == 0){
+				first = newNode;
+				last = newNode;
+			} else {
+				last.next = newNode;
+				last = newNode;
+			}
+		}
+		else {
+			Node current = first;
+			for (int i = 0; i < index - 1; i++){
+				current = current.next;
+			}
+			newNode.next = current.next;
+			current.next = newNode;
+		}
+		size++;
+		}
+
 
 	/**
 	 * Creates a new node that points to the given memory block, and adds it
@@ -90,6 +126,16 @@ public class LinkedList {
 	 */
 	public void addLast(MemoryBlock block) {
 		//// Write your code here
+		Node newNode = new Node(block);
+		if(size == 0){
+			first = newNode;
+			last = newNode;
+		}
+		else {
+			last.next = newNode;
+			last = newNode;
+		}
+		size++;
 	}
 	
 	/**
@@ -101,6 +147,15 @@ public class LinkedList {
 	 */
 	public void addFirst(MemoryBlock block) {
 		//// Write your code here
+		Node newNode = new Node(block);
+		newNode.next = first;
+		first = newNode;
+
+		if(size == 0){
+			last = newNode;
+		}
+
+		size++;
 	}
 
 	/**
@@ -114,9 +169,14 @@ public class LinkedList {
 	 */
 	public MemoryBlock getBlock(int index) {
 		//// Replace the following statement with your code
-		return null;
-	}	
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
 
+		Node current = getNode(index);
+		return current.block;
+	}
 	/**
 	 * Gets the index of the node pointing to the given memory block.
 	 * 
@@ -126,6 +186,15 @@ public class LinkedList {
 	 */
 	public int indexOf(MemoryBlock block) {
 		//// Replace the following statement with your code
+		Node current = first;
+		int index = 0;
+		while(current != null){
+			if(current.block.equals(block)){
+				return index;
+			}
+			current = current.next;
+			index++;
+		}
 		return -1;
 	}
 
@@ -137,7 +206,40 @@ public class LinkedList {
 	 */
 	public void remove(Node node) {
 		//// Write your code here
-	}
+		if (node == null) {
+			throw new NullPointerException("ERROR: Cannot remove a null node!");
+		}
+		if (first == null){
+			return;
+		}
+		if (first == node){
+			first = first.next;
+			if(first == null){
+				last = null;
+				size = 0;
+			} else {
+			size--;
+			}
+			return;
+		}
+		Node prev = null;
+		Node current = first;
+		while (current != null && current != node){
+			prev = current;
+			current = current.next;
+		}
+		if (current == node){
+			if(current.next == null){
+				prev.next = null;
+				last = prev;
+			} else {
+				prev.next = current.next;
+			}
+		size--;
+		} else {
+			throw new IllegalArgumentException("ERROR: Node not found in list!");
+		} 
+		}
 
 	/**
 	 * Removes from this list the node which is located at the given index.
@@ -148,6 +250,11 @@ public class LinkedList {
 	 */
 	public void remove(int index) {
 		//// Write your code here
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		remove(getNode(index));
 	}
 
 	/**
@@ -159,6 +266,7 @@ public class LinkedList {
 	 */
 	public void remove(MemoryBlock block) {
 		//// Write your code here
+		remove(getNode(indexOf(block)));
 	}	
 
 	/**
@@ -173,6 +281,12 @@ public class LinkedList {
 	 */
 	public String toString() {
 		//// Replace the following statement with your code
-		return "";
+		ListIterator itr = this.iterator();
+		String str = "";
+		while (itr.hasNext()) {
+		str += "(" + itr.current.block.baseAddress + " , " + itr.current.block.length + ") ";
+		itr.next();
+		}
+		return str;
 	}
 }
